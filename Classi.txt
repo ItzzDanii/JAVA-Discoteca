@@ -1,0 +1,7 @@
+Persona:
+- conto
+- lascia giubbetto
+- nome/id
+- zona/posto
+- tipo biglietto
+- id armadietto -> -1 se non lascia giubbetto
