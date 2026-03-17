@@ -3,5 +3,7 @@ Persona:
 - lascia giubbetto
 - nome/id
 - zona/posto
+- tempo trascorso in discoteca
+- spesa totale (sottrai dal conto)
 - tipo biglietto
 - id armadietto -> -1 se non lascia giubbetto
