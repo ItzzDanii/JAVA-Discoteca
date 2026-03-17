@@ -1,0 +1,71 @@
+2 tipi di persone:
+- chi ha comprato il biglietto online
+- chi non l'ha fatto e deve comprarlo sul momento
+
+1 persona entra se ci sono posti nel guardaroba e in discoteca
+
+1 persona che entra nel guardaroba,si mette in fila per entrare 
+in discoteca finché non si libera e può decidere se lasciare il suo
+giubbino o no
+
+Una volta entrato in discoteca può compiere 4 azioni:
+- ballare
+- andare al bar -> se pieno,torna a ballare 
+                -> se non pieno,dopo deve andare in bagno
+- andare in bagno -> se tutto occupato,aspetta fuori
+- uscire dalla discoteca
+
+A fine serata:
+- chiude ingresso -> nessuno accede in discoteca
+- chiude bar
+- spegne musica
+- chiude bagni
+
+Tutte le persone devono uscire dalla discoteca
+
+Dopo che sono uscite,stampare riepilogo serata:
+- drink acquistati
+- persone entrate con biglietto online
+- persone entrate con biglietto in loco
+- tempo medio dentro la discoteca (ogni persona ha un tempo)
+- numero persone dentro disco a metà serata
+- guadagno totale
+
+Numero max persone :
+- fila online: max 20
+- fila loco: max 50
+- guardaroba: max 10
+- discoteca: max 400
+- bar: max 10
+- bagno: 5
+
+Tempi attesa:
+- passaggio da fila online a guardaroba (10-15 ms)
+- passaggio da fila loco a guardaroba (20-30 ms)
+- passaggio da guardaroba a discoteca:
+    -> se lascia giubbetto (25-35 ms)
+    -> se non lascia (0 ms)
+- sta nel bar (20-80 ms)
+- passaggio da bar a bagno (100-200 ms)
+- sta in bagno (40-50 ms) -> per poi tornare in discoteca
+
+Costi:
+- biglietto online: 10$
+- biglietto loco maschi: 20$
+- biglietto loco donne: 15$
+- guardaroba: 5$ (se lascia giubbetto)
+- drink: 10$
+
+Decisioni:
+- guardaroba -> 80% lo usa - 20% non lo usa
+- discoteca -> 80% balla - 15% drink - 5% esce
+
+Se non ha soldi/si chiude il bar, effettua altre operazioni...
+Lo stesso se le altre opzioni non sono più disponibili
+
+Chiusura:
+- La serata dura 60 sec (+attesa uscita di tutte le persone)
+- Ingresso chiuso dopo 45 sec
+- Bar chiuso dopo 50 sec
+- Musica spenta dopo 55 sec
+- Bagni chiusi dopo 60 sec (poi escono tutti)
