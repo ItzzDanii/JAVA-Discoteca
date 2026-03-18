@@ -1,30 +1,59 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Discoteca extends Thread{
+
+    long start_time;
+    List<Persona> listPersone;
+
+    public Discoteca(){
+        Singleton.getInstance().tempo_trascorso = 0;
+        listPersone = new ArrayList<>();
+    }
+
     @Override
     public void run() {
+
+        start_time = System.currentTimeMillis();
+        
+
         try {
-            Singleton.getInstance().tempo_trascorso = System.currentTimeMillis();
+           while (true) {
+                long attuale = System.currentTimeMillis() - start_time;
+                Singleton.getInstance().tempo_trascorso = attuale;
 
-        while (Singleton.getInstance().tempo_trascorso <= Singleton.getInstance().chiusura_serata) {
+                if (attuale >= Singleton.getInstance().chiusura_serata) {
+                    System.out.println("Serata terminata!");
+                    break;
+                }
 
-            Persona p = new Persona();
-            p.start();
+                if(Singleton.getInstance().ingressoAperto){
+                    Persona p = new Persona();
+                    listPersone.add(p);
+                    p.start();
+                }
 
-            
-            Singleton.getInstance().tempo_trascorso = System.currentTimeMillis(); // aggiorna tempo
+                if(attuale>=30000)
+                    Singleton.getInstance().metàserata = true;
 
-            if(Singleton.getInstance().tempo_trascorso >= 45000)
-                Singleton.getInstance().chiudiIngresso();
-
-            if(Singleton.getInstance().tempo_trascorso >= 50000)
-                Singleton.getInstance().chiudiBar();
-            
-            if(Singleton.getInstance().tempo_trascorso >= 55000)
-                Singleton.getInstance().spegniMusica();
-
-            if(Singleton.getInstance().tempo_trascorso >= 60000)
-                Singleton.getInstance().chiudiBagni();
-            
-        }
+                if (attuale >= 45000) {
+                    System.out.println("<<< INGRESSO CHIUSO! >>>");
+                    Singleton.getInstance().chiudiIngresso();
+                }
+                if (attuale >= 50000) {
+                    System.out.println("<<< BAR CHIUSO! >>>");
+                    Singleton.getInstance().chiudiBar();
+                }
+                if (attuale >= 55000) {
+                    System.out.println("<<< MUSICA SPENTA! >>>");
+                    Singleton.getInstance().spegniMusica();
+                }
+                if (attuale >= 60000) {
+                    System.out.println("<<< BAGNI CHIUSI! >>>");
+                    Singleton.getInstance().chiudiBagni();
+                }
+                Thread.sleep(1000); 
+            }
         } catch (Exception e) {}
     }
 }
