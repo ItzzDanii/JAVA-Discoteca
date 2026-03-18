@@ -24,6 +24,14 @@ public class Singleton {
     boolean barAperto = true;
     boolean musicaAccesa = true;
     boolean bagnoAperto = true;
+    boolean metàserata = false;
+
+    int num_drink_acquistati = 0;
+    int num_persone_online = 0;
+    int num_persone_loco = 0;
+    long tempo_medio = 0;
+    int num_persone_metà_serata = 0;
+    float guadagno_totale = 0;
 
     List<Persona> listFilaOnline = new ArrayList<>(20);    
     List<Persona> listFilaLoco = new ArrayList<>(50);
@@ -38,11 +46,20 @@ public class Singleton {
     }
 
     public void vaiFilaOnline(Persona p){
+        num_persone_online++;
+
+        if(!ingressoAperto)
+            return;
+
         boolean acquireSuccess = false;
 
             try {
                 S_fila_online.acquire();
                 acquireSuccess=true;
+
+                guadagno_totale+=COSTO_TICKET_ONLINE;
+
+                System.out.println(p.nome + " (online)");
 
                 p.zona = 1;
                 listFilaOnline.add(p);
@@ -58,11 +75,16 @@ public class Singleton {
     }
 
    public void vaiFilaLoco(Persona p){
+        if(!ingressoAperto)
+            return;
+
         boolean acquireSuccess = false;
 
         try {
             S_fila_loco.acquire();
             acquireSuccess = true;
+
+            System.out.println(p.nome + " (loco)");
 
             p.zona = 2;
             listFilaLoco.add(p);
@@ -71,14 +93,21 @@ public class Singleton {
 
             if(p.conto - COSTO_TICKET_LOCO_M <= 0 ||
             p.conto - COSTO_TICKET_LOCO_F <= 0){
+                System.out.println(p.nome + " (no soldi x loco)");
                 listFilaLoco.remove(p);
+                S_fila_loco.release();
                 return;
             }
 
-            if(p.sesso == 0)
+            if(p.sesso == 0){
                 p.conto -= COSTO_TICKET_LOCO_M;
-            else
+                guadagno_totale+=COSTO_TICKET_LOCO_M;
+                num_persone_loco++;
+            }else{
                 p.conto -= COSTO_TICKET_LOCO_F;
+                guadagno_totale+=COSTO_TICKET_LOCO_F;
+                num_persone_loco++;
+            }
 
             listFilaLoco.remove(p);
             vaiInGuardaroba(p);
@@ -90,17 +119,24 @@ public class Singleton {
     }
 
     public void vaiInGuardaroba(Persona p){
+        if(!metàserata)
+            num_persone_metà_serata++;
+
         boolean acquireSuccess = false;
 
         try {
             S_guardaroba.acquire();
             acquireSuccess = true;
 
+            System.out.println(p.nome+" (guardaroba)");
+
             p.zona = 3;
             listGuardaroba.add(p);
 
             if(p.lasciaGiubbetto && p.conto - COSTO_GUARDAROBA > 0){
                 p.conto -= COSTO_GUARDAROBA;
+                guadagno_totale+=COSTO_GUARDAROBA;
+                p.id_locker = p.rand.nextInt(400);
                 Thread.sleep(25 + p.rand.nextInt(10));
             } else {
                 Thread.sleep(0);
@@ -116,19 +152,29 @@ public class Singleton {
     }
 
     public void vaiABallare(Persona p){
+        if(!musicaAccesa){
+            p.zona = 0;
+            listDiscoteca.remove(p);
+            S_discoteca.release();
+            return;
+        }
+
         boolean acquireSuccess = false;
         try {
             S_discoteca.acquire();
             acquireSuccess = true;
 
             p.zona = 4;
+            System.out.println(p.nome + " (balla)");
             listDiscoteca.add(p);
             while(true){
                 float scelta = p.rand.nextFloat();
 
                 if(scelta < 0.05){
+                    System.out.println(p.nome + " (uscito)");
                     listDiscoteca.remove(p);
                     p.zona = 0;
+                    S_discoteca.release();
                     return;
                 }
                 else if(scelta < 0.20){
@@ -149,37 +195,47 @@ public class Singleton {
     }
 
     public void vaiAlBar(Persona p){
-        boolean acquireSuccess = false;
-        try {
-            S_bar.acquire();
-            acquireSuccess = true;
+        if(!barAperto){
+            vaiABallare(p);
+            return;
+        }
 
-            if(p.conto - COSTO_DRINK > 0){
-                p.conto -= COSTO_DRINK;
+        if(S_bar.tryAcquire()) {
+            try {
+                System.out.println(p.nome+" (bar)");
+                if(p.conto - COSTO_DRINK > 0){
+                    p.conto -= COSTO_DRINK;
+                    guadagno_totale+=COSTO_DRINK;
+                    num_drink_acquistati++;
+                    listBar.add(p);
+                    p.zona = 5;
 
-                listBar.add(p);
-                p.zona = 5;
+                    Thread.sleep(20 + p.rand.nextInt(60));
+                    Thread.sleep(100 + p.rand.nextInt(100));
 
-                Thread.sleep(20 + p.rand.nextInt(60));
-                Thread.sleep(100 + p.rand.nextInt(100));
+                    listBar.remove(p);
+                    vaiInBagno(p);
+                } else {
+                    vaiABallare(p);
+                }
 
-                listBar.remove(p);
-                vaiInBagno(p);
-            } else {
-                vaiABallare(p);
-            }
-
-        } catch (Exception e) {}
-
-        if(acquireSuccess)
-            S_bar.release();
+            } catch (Exception e) {}
+        } else vaiABallare(p);
     }
 
     public void vaiInBagno(Persona p){
+        if(!bagnoAperto){
+            vaiABallare(p);
+            S_bagno.release();
+            return;
+        }
+
         boolean acquireSuccess = false;
         try {
             S_bagno.acquire();
             acquireSuccess = true;
+
+            System.out.println(p.nome+" (bagno)");
 
             p.zona = 6;
             listBagniOccupati.add(p);
