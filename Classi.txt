@@ -7,3 +7,8 @@ Persona:
 - spesa totale (sottrai dal conto)
 - tipo biglietto
 - id armadietto -> -1 se non lascia giubbetto
+
+Discoteca:
+- crea persone ficnhé la serata non sia finita
+- ogni persona agisce in modo autonomo
+- gestisce chiusura ingresso - bar - bagni
